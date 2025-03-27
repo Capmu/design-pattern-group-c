@@ -1,57 +1,50 @@
+import lombok.Getter;
+import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
 // Originator
+@Getter
+@Setter
 class Editor {
     private String content;
+    private long timestamp;
 
     public Editor(String content) {
         this.content = content;
+        this.timestamp = System.currentTimeMillis();
     }
 
     public void write(String text) {
         this.content += text;
-    }
-
-    public String getContent() {
-        return this.content;
+        this.timestamp = System.currentTimeMillis(); // Update timestamp on modification
     }
 
     public EditorMemento createMemento() {
-        return new EditorMemento(this.content, System.currentTimeMillis());
+        return new EditorMemento(this.content, this.timestamp);
     }
 
     public void restoreFromMemento(EditorMemento memento) {
-        this.content = memento.getSavedContent();
+        this.content = memento.getContent();
+        this.timestamp = memento.getTimestamp();
     }
 }
 
 // Memento
+@Getter
 class EditorMemento {
-    private String content;
-    private long timestamp;
+    private final String content;
+    private final long timestamp;
 
     public EditorMemento(String content, long timestamp) {
         this.content = content;
         this.timestamp = timestamp;
     }
-
-    public String getSavedContent() {
-        return this.content;
-    }
-
-    public long getTimestamp() {
-        return this.timestamp;
-    }
 }
 
 // Caretaker
 class History {
-    private List<EditorMemento> mementos;
-
-    public History() {
-        this.mementos = new ArrayList<>();
-    }
+    private final List<EditorMemento> mementos = new ArrayList<>();
 
     public void addMemento(EditorMemento memento) {
         this.mementos.add(memento);
@@ -67,11 +60,11 @@ public class Main {
         Editor editor = new Editor("Initial code\n");
         History history = new History();
 
-        // Write some content and save the state with timestamp
+        // Write some content
         editor.write("Additional code\n");
         history.addMemento(editor.createMemento());
 
-        // Write more content and save the state with timestamp
+        // Write more content
         editor.write("More content\n");
         history.addMemento(editor.createMemento());
 
@@ -79,8 +72,7 @@ public class Main {
         editor.restoreFromMemento(history.getMemento(1));
 
         // Print editor content and its timestamp after restoring
-        EditorMemento restoredMemento = history.getMemento(1);
         System.out.println("Content: " + editor.getContent());
-        System.out.println("Timestamp: " + restoredMemento.getTimestamp());
+        System.out.println("Timestamp: " + editor.getTimestamp());
     }
 }

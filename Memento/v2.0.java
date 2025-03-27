@@ -1,8 +1,11 @@
-java
+import lombok.Getter;
+import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
 // Originator
+@Getter
+@Setter
 class Editor {
     private String content;
 
@@ -14,39 +17,28 @@ class Editor {
         this.content += text;
     }
 
-    public String getContent() {
-        return this.content;
-    }
-
     public EditorMemento createMemento() {
         return new EditorMemento(this.content);
     }
 
     public void restoreFromMemento(EditorMemento memento) {
-        this.content = memento.getSavedContent();
+        this.content = memento.getContent();
     }
 }
 
 // Memento
+@Getter
 class EditorMemento {
-    private String content;
+    private final String content;
 
-    public EditorMemento(String content) {
+    public EditorMemento(String content,) {
         this.content = content;
-    }
-
-    public String getSavedContent() {
-        return this.content;
     }
 }
 
 // Caretaker
 class History {
-    private List<EditorMemento> mementos;
-
-    public History() {
-        this.mementos = new ArrayList<>();
-    }
+    private final List<EditorMemento> mementos = new ArrayList<>();
 
     public void addMemento(EditorMemento memento) {
         this.mementos.add(memento);
@@ -70,10 +62,10 @@ public class Main {
         editor.write("More content\n");
         history.addMemento(editor.createMemento());
 
-        // Restore to previous state
+        // Restore to previous state (one step back)
         editor.restoreFromMemento(history.getMemento(1));
 
         // Print editor content
-        System.out.println(editor.getContent());
+        System.out.println("Content: " + editor.getContent());
     }
 }
